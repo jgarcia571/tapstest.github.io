@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html>
+<style type="text/css">label{
+    font-weight: 600;
+    color: #003262;
+  }
+h2 label{
+     font-size:1.5rem;
+}
+
+  input[type="search"],
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+
+  input[type="number"] {
+    width: calc(45% - 8px);
+    display: inline-block;
+  }
+
+  select {
+    width: calc(45% - 8px);
+    display: inline-block;
+    margin-left: 10px;
+  }
+
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .autocomplete-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    background-color: white;
+    border: 1px solid #ccc;
+    max-height: 240px;
+    overflow-y: auto;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+  }
+
+  td, table, tbody, tr {
+    overflow: visible;
+  }
+
+  #start-autocomplete,
+  #end-autocomplete {
+    display: none;
+  }
+
+  .autocomplete-item {
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .autocomplete-item:hover {
+    background-color: #f0f0f0;
+  }
+
+  .button {
+    background-color: #CDAA00;
+    color: #000000;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s, background-color 0.3s;
+    display: inline-block;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .button:hover {
+    background-color: #4e6f80;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+  }
+
+  .button:active {
+    transform: translateY(2px);
+  }
+.time-row {
+    display: flex;
+flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .time-row input[type="number"] {
+  width: 60px;
+  height: 35px;
+  text-align: center;
+  font-size: 14px;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+  .time-row select {
+    width: 80px;
+  }
+
+  .time-label {
+    margin-bottom: 5px;
+    display: block;
+    font-weight: 600;
+    color: #003262;
+  }
+
+  #result-table {
+    margin-top: 30px;
+    padding: 15px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    min-height: 30px;
+    color: #333;
+  }
+
+#ampm {
+  height: 35px;
+  width: 80px; /* Adjust as needed */
+  padding: 4px 8px;
+  font-size: 14px;
+  line-height: 1.1;
+  border-radius: 6px;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+#taskForm label {
+  margin-bottom: -20px; /* or smaller like 2px */
+  padding: 0;
+}
+
+.switch-btn {
+    background-color: #ffffff;
+    padding: 10px 10px;
+    border: none;
+    font-size:20px;
+    cursor: pointer;
+    transition: 0.3s ease;
+    float: right;
+}
+
+.switch-btn:hover {
+    background-color: #dadada;
+}
+</style>
+<body>
+<div>
+	<p style="text-align: center;">The UC Merced Trip Planner is an online tool that helps users find transit routes and schedules using CatTracks and Route UC services. By entering trip details, users can view customized travel options. It serves as a convenient way to explore the City of Merced and plan out any trip for each day!</p>
+
+	<h2><label for="start">Start Location:</label></h2>
+
+	<div class="autocomplete-wrapper"><input autocomplete="off" id="start" placeholder="Start location" type="search" />
+		<div class="autocomplete-dropdown" id="start-autocomplete">&nbsp;</div>
+	</div>
+</div>
+
+<p><button class="switch-btn" onclick="switchLocations()">⇅</button></p>
+
+<h2><label for="end">End Location:</label></h2>
+
+<div>
+	<div class="autocomplete-wrapper"><input autocomplete="off" id="end" placeholder="End location" type="search" />
+		<div class="autocomplete-dropdown" id="end-autocomplete">&nbsp;</div>
+	</div>
+</div>
+
+<table border="0" cellpadding="1" cellspacing="1" style="width:100%; table-layout: fixed">
+	<tbody style="border-top: none">
+		<tr>
+			<td>
+				<div>
+					<div>
+						<h2><label class="time-label" for="hour">Time:</label></h2>
+						<label><input checked="checked" name="timeMode" type="radio" value="depart" /> Depart After</label> <label><input name="timeMode" type="radio" value="arrive" /> Arrive By</label></div>
+
+					<div class="time-row"><label for="hour">Hour</label> <input id="hour" max="12" maxlength="2" min="1" placeholder="12" type="number" /> : <label for="minute">Minute</label> <input id="minute" max="59" maxlength="2" min="0" placeholder="00" type="number" /> <label for="ampm">AM/PM</label> <select id="ampm"><option>AM</option><option>PM</option> </select></div>
+
+					<div>
+						<p>&nbsp;</p>
+
+						<h2><label class="time-label">Schedule Type:</label></h2>
+						<label><input checked="checked" name="scheduleType" type="radio" value="weekday" /> Weekday</label> <label><input name="scheduleType" type="radio" value="weekend" /> Weekend</label></div>
+				</div>
+			</td>
+			<td>
+				<div>
+					<h2><label for="routes_list">Routes Filter:</label></h2>
+				</div>
+
+				<div>
+					<table border="0" cellpadding="1" cellspacing="1" style="width:100%;">
+						<tbody style="border-top: none">
+							<tr>
+								<td>
+									<form id="taskForm"><label><input name="route_name" type="checkbox" value="Bobcat Express" /> Bobcat Express</label><br />
+										<label><input name="route_name" type="checkbox" value="C-1" /> C-1</label><br />
+										<label><input name="route_name" type="checkbox" value="C-2" /> C-2</label><br />
+										<label><input name="route_name" type="checkbox" value="G Line" /> G Line</label><br />
+										<label><input name="route_name" type="checkbox" value="FastCat 1" /> FastCat</label><br />
+										<label><input name="route_name" type="checkbox" value="FastCat 2" /> FastCat 2</label><br />
+										<label><input name="route_name" type="checkbox" value="Yosemite Express" /> Yosemite Express</label><br />
+										<label><input name="route_name" type="checkbox" value="E-1" /> E-1</label><br />
+										<label><input name="route_name" type="checkbox" value="E-2" /> E-2</label><br />
+										<label><input name="route_name" type="checkbox" value="Route UC" /> Route UC</label></form>
+								</td>
+								<td>
+									<form id="taskForm"><label><input name="route_name" type="checkbox" value="M-1" /> M-1</label><br />
+										<label><input name="route_name" type="checkbox" value="M-2" /> M-2</label><br />
+										<label><input name="route_name" type="checkbox" value="M-3" /> M-3</label><br />
+										<label><input name="route_name" type="checkbox" value="M-4" /> M-4</label><br />
+										<label><input name="route_name" type="checkbox" value="M-5" /> M-5</label><br />
+										<label><input name="route_name" type="checkbox" value="M-6" /> M-6</label><br />
+										<label><input name="route_name" type="checkbox" value="M-7" /> M-7</label></form>
+								</td>
+								<td>
+									<p><button onclick="selectAll()">Select All</button></p>
+
+									<p>&nbsp;</p>
+
+									<p><button onclick="deselectAll()">Deselect All</button></p>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<h2 style="text-align: center;"><button class="button" onclick="planTrip()">Plan Trip</button></h2>
+
+<div id="result-table">
+	<div id="result-header">&nbsp;</div>
+
+	<table border="0" cellpadding="1" cellspacing="1" style="width:100%;">
+		<tbody style="border-top: none">
+			<tr>
+				<td style="width: 49%; vertical-align: top;">
+					<div id="fastest-result">&nbsp;</div>
+				</td>
+				<td style="width: 49%; vertical-align: top;">
+					<div id="optimized-result">&nbsp;</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<p>&nbsp;</p>
+</div>
+<!--<div id="results">&nbsp;</div>-->
+
+<p style="text-align: center;">&nbsp;</p>
+
+<p style="text-align: center;">&nbsp;</p>
+
+<p style="text-align: center;">&nbsp;</p>
+
+<p style="text-align: center; font-size: 12px"><b>This program is intended to be used as a helpful tool rather than a complete replacement of using the provided schedules in the routes page. Please use the route schedules for every bus line provided&nbsp;<a href="https://taps.ucmerced.edu/transportation/cattracks-and-route-uc/routes">here</a>&nbsp;to verify the bus times given by this program. If you ever find any issues or&nbsp;inaccuracies presented by this&nbsp;program, please send an email, preferably with screenshots and steps to recreate it, to <a href="mailto:jnardello@ucmerced.edu?subject=CatTracks%20Trip%20Planner%20Issue">jnardello@ucmerced.edu</a>.</b></p>
+<script>
+  //Entire Database in JSON-ish format
+    const routesData = [
+      {
+        route: "Bobcat Express",
+        weekday: [
+          {stop: "R Street Village Apartments", times: [389, 429, 469, 524, 564, 604, 644, 729, 829, 917, 1017, 1102, 1202]},
+          {stop: "El Redondo Drive (Jenner Drive)", times: [392, 432, 472, 527, 567, 607, 647, 732, 832, 920, 1020, 1105, 1205]},
+          {stop: "Compass Pointe Apartments (Pacific Drive)", times: [394, 434, 474, 529, 569, 609, 649, 734, 834, 922, 1022, 1107, 1207]},
+          {stop: "Merced College The Bus Terminal", times: [399, 439, 479, 534, 574, 614, 654, 739, 839, 927, 1027, 1112, 1212]},
+          {stop: "M Street & Bellevue Road (Bellevue Ranch)", times: [404, 444, 484, 539, 579, 619, 660, 745, 845, 933, 1033, 1118, 1218]},
+          {stop: "University Transit Center (UTC)", times: [415, 455, 510, 550, 590, 630, 671, 771, 856, 959, 1044, 1144, 1229]},
+          {stop: "Promenade Center", times: [680, 780, 865, 968, 1053, 1153]},
+          {stop: "Merced Mall / Target", times: [689, 789, 877, 977, 1062, 1162]},
+          {stop: "Walmart (Loughborough Drive)", times: [698, 798, 886, 986, 1071, 1171]},
+          {stop: "Amtrak Train Station", times: [710, 810, 898, 998, 1083, 1183, 1280]},
+          {stop: "K Street Between 18th Street & 19th Street", times: [712, 812, 900, 1000, 1085, 1185]},
+          {stop: "Merced Transpo", times: [717, 815, 905, 1005, 1090, 1190]},
+          {stop: "Rite Aid/Walgreens (G Street)", times: [722, 822, 910, 1010, 1095, 1195]},
+          {stop: "El Portal Plaza (G Street)", times: [723, 823, 911, 1011, 1096, 1196]},
+          {stop: "R Street Village Apartments", times: [729, 829, 917, 1017, 1102, 1202]},
+        ]
+      },
+      {
+        route: "C-1",
+        weekday: [
+          {stop: "Granville Apartments", times: [380, 451, 537, 608, 694, 765, 856, 927, 1013, 1084, 1155, 1241, 1312, 1383]},
+          {stop: "G Street & West Alexander Avenue", times: [392, 463, 549, 620, 706, 777, 868, 939, 1025, 1096, 1167, 1253, 1324, 1395]},
+          {stop: "Rite Aid/Walgreens (G Street)", times: [394, 465, 551, 622, 708, 779, 870, 941, 1027, 1098, 1169, 1255, 1326, 1397]},
+          {stop: "El Portal Plaza (G Street)", times: [396, 467, 553, 624, 710, 781, 872, 943, 1029, 1100, 1171, 1257, 1328, 1399]},
+          {stop: "Tri-College / Mercy Hospital (G Street)", times: [399, 470, 556, 627, 713, 784, 875, 946, 1032, 1103, 1174, 1260, 1331, 1402]},
+          {stop: "M Street & Bellevue Road (Bellevue Ranch)", times: [405, 476, 562, 633, 719, 790, 881, 952, 1038, 1109, 1180, 1266, 1337, 1408]},
+          {stop: "University Transit Center (UTC)", times: [416, 502, 573, 659, 730, 816, 892, 978, 1049, 1120, 1206, 1277, 1348]},
+          {stop: "Tri-College / Mercy Hospital (G Street)", times: [426, 512, 583, 669, 740, 826, 902, 988, 1059, 1130, 1216, 1287, 1358]},
+          {stop: "El Portal Plaza (G Street)", times: [429, 515, 586, 672, 743, 829, 905, 991, 1062, 1133, 1219, 1290, 1361]},
+          {stop: "G Street & West Alexander Avenue", times: [434, 520, 591, 677, 748, 834, 910, 996, 1067, 1138, 1224, 1295, 1366]},
+          {stop: "Granville Apartments", times: [451, 537, 608, 694, 765, 856, 927, 1013, 1084, 1155, 1241, 1312, 1383]},
+        ]
+      },
+      {
+        route: "C-2",
+        weekday: [
+          {stop: "R Street Village Apartments", times: [380, 438, 511, 569, 642, 700, 773, 831, 892, 950, 1023, 1081, 1154, 1212, 1285, 1343]},
+          {stop: "El Redondo Drive (Jenner Drive)", times: [383, 441, 514, 572, 645, 703, 776, 834, 895, 953, 1026, 1084, 1157, 1215, 1288, 1346]},
+          {stop: "Compass Pointe Apartments (Pacific Drive)", times: [385, 443, 516, 574, 647, 705, 778, 836, 897, 955, 1028, 1086, 1159, 1217, 1290, 1348]},
+          {stop: "Buena Vista Drive", times: [392, 450, 523, 581, 654, 712, 785, 843, 904, 962, 1035, 1093, 1166, 1224, 1297, 1355]},
+          {stop: "Merced Mall / Target", times: [399, 457, 530, 588, 661, 719, 792, 853, 911, 969, 1042, 1100, 1173, 1231, 1304, 1362]},
+          {stop: "M Street Village Apartments", times: [401, 459, 532, 590, 663, 721, 794, 855, 913, 971, 1044, 1102, 1175, 1233, 1306, 1368]},
+          {stop: "Merced College The Bus Terminal", times: [405, 463, 536, 594, 667, 725, 798, 859, 917, 975, 1048, 1106, 1179, 1237, 1310, 1372]},
+          {stop: "Cardella Road & M Street", times: [408, 466, 539, 597, 670, 728, 801, 862, 920, 978, 1051, 1109, 1182, 1240, 1313, 1375]},
+          {stop: "M Street & Bellevue Road (Bellevue Ranch)", times: [411, 469, 542, 600, 673, 731, 804, 865, 923, 981, 1054, 1112, 1185, 1243, 1316, 1378]},
+          {stop: "University Transit Center (UTC)", times: [422, 495, 553, 626, 684, 757, 815, 876, 934, 1007, 1065, 1138, 1196, 1269, 1327]},
+          {stop: "Foothill Drive", times: [429, 502, 560, 633, 691, 764, 822, 883, 941, 1014, 1072, 1145, 1203, 1276, 1334]},
+          {stop: "Cardella Road & M Street", times: [433, 506, 564, 637, 695, 768, 826, 887, 945, 1018, 1076, 1149, 1207, 1280, 1338]},
+          {stop: "R Street Village Apartments", times: [438, 511, 569, 642, 700, 773, 831, 892, 950, 1023, 1081, 1154, 1212, 1285, 1343]},
+        ]
+      },
+      {
+        route: "FastCat 1",
+        weekday: [
+          {stop: "University Surgery Center", times: [395, 459, 538, 602, 666, 745, 809, 876, 940, 1019, 1083, 1147, 1211, 1290, 1354]},
+          {stop: "Promenade Center", times: [399, 463, 542, 606, 670, 749, 813, 880, 944, 1023, 1087, 1151, 1215, 1294, 1358]},
+          {stop: "Yosemite Crossings Shopping Center", times: [402, 466, 545, 609, 673, 752, 816, 883, 947, 1026, 1090, 1154, 1218, 1297, 1401]},
+          {stop: "Tri-College / Mercy Hospital (G Street)", times: [404, 468, 547, 611, 675, 754, 818, 885, 949, 1028, 1092, 1156, 1220, 1299, 1403]},
+          {stop: "Cardella Road & M Street", times: [408, 472, 551, 615, 679, 758, 822, 889, 953, 1032, 1096, 1160, 1224, 1303, 1407]},
+          {stop: "M Street & Bellevue Road (Bellevue Ranch)", times: [412, 476, 555, 619, 683, 762, 826, 893, 957, 1036, 1100, 1164, 1228, 1307, 1411]},
+          {stop: "University Transit Center (UTC)", times: [423, 502, 566, 630, 694, 773, 837, 904, 983, 1047, 1111, 1175, 1254, 1318]},
+          {stop: "Tri-College / Mercy Hospital (G Street)", times: [433, 512, 576, 640, 704, 783, 847, 914, 993, 1057, 1121, 1185, 1264, 1328, 1432]},
+          {stop: "Yosemite & Cordova (Merced Physician Center)", times: [436, 515, 579, 643, 707, 786, 850, 917, 996, 1060, 1124, 1188, 1267, 1331, 1435]},
+          {stop: "University Surgery Center", times: [439, 518, 582, 646, 710, 789, 853, 920, 999, 1063, 1127, 1191, 1270, 1334, 1438]},
+          {stop: "Moraga Subdivision", times: [442, 521, 585, 649, 713, 792, 859, 923, 1002, 1066, 1130, 1194, 1273, 1337, 1441]},
+          {stop: "University Transit Center (UTC)", times: [450, 529, 593, 657, 736, 800, 867, 931, 1010, 1074, 1138, 1202, 1281, 1345, 1449]},
+          {stop: "University Surgery Center", times: [459, 538, 602, 666, 745, 809, 876, 940, 1019, 1083, 1147, 1211, 1290, 1354]},
+        ]
+      },
+      {
+        route: "FastCat 2",
+        weekday: [
+          {stop: "University Surgery Center", times: [510, 574, 653, 717, 781, 860, 924, 991, 1070, 1134, 1213, 1277]},
+          {stop: "Promenade Center", times: [514, 578, 657, 721, 785, 864, 928, 995, 1074, 1138, 1217, 1281]},
+          {stop: "Yosemite Crossings Shopping Center", times: [517, 581, 660, 724, 788, 867, 931, 998, 1077, 1141, 1220, 1284]},
+          {stop: "Tri-College / Mercy Hospital (G Street)", times: [519, 583, 662, 726, 790, 869, 933, 1000, 1079, 1143, 1222, 1286]},
+          {stop: "Cardella Road & M Street", times: [523, 587, 666, 730, 794, 873, 937, 1004, 1083, 1147, 1226, 1290]},
+          {stop: "M Street & Bellevue Road (Bellevue Ranch)", times: [527, 591, 670, 734, 798, 877, 941, 1008, 1087, 1151, 1230, 1294]},
+          {stop: "University Transit Center (UTC)", times: [538, 617, 681, 745, 809, 888, 952, 1019, 1098, 1162, 1241, 1305]},
+          {stop: "Tri-College / Mercy Hospital (G Street)", times: [548, 627, 691, 755, 819, 898, 962, 1029, 1108, 1172, 1251, 1315]},
+          {stop: "Yosemite & Cordova (Merced Physician Center)", times: [551, 630, 694, 758, 822, 901, 965, 1032, 1111, 1175, 1254, 1318]},
+          {stop: "University Surgery Center", times: [554, 633, 697, 761, 825, 904, 968, 1035, 1114, 1178, 1257, 1321]},
+          {stop: "Moraga Subdivision", times: [557, 636, 700, 764, 828, 907, 971, 1038, 1117, 1181, 1260, 1324]},
+          {stop: "University Transit Center (UTC)", times: [565, 644, 708, 772, 851, 915, 982, 1061, 1125, 1204, 1268]},
+          {stop: "University Surgery Center", times: [574, 653, 717, 781, 860, 924, 991, 1070, 1134, 1213, 1277]},
+        ]
+      },
+      {
+        route: "G Line",
+        weekday: [
+          {stop: "R Street Village Apartments", times: [390, 458, 541, 609, 677, 745, 828, 901, 969, 1052, 1120, 1188, 1271, 1339]},
+          {stop: "El Redondo Drive (Jenner Drive)", times: [393, 461, 544, 612, 680, 748, 831, 904, 972, 1055, 1123, 1191, 1274, 1342]},
+          {stop: "Compass Pointe Apartments (Pacific Drive)", times: [395, 463, 546, 614, 682, 750, 833, 906, 974, 1057, 1125, 1193, 1276, 1344]},
+          {stop: "Merced College The Bus Terminal", times: [400, 468, 551, 619, 687, 755, 838, 911, 979, 1062, 1130, 1198, 1281, 1349]},
+          {stop: "M Street & Bellevue Road (Bellevue Ranch)", times: [406, 474, 557, 625, 693, 761, 844, 917, 985, 1068, 1136, 1204, 1287, 1355]},
+          {stop: "University Transit Center (UTC)", times: [417, 500, 568, 636, 704, 787, 855, 928, 1011, 1079, 1147, 1230, 1298, 1366]},
+          {stop: "Amtrak Train Station", times: [438, 521, 589, 657, 725, 808, 876, 949, 1032, 1100, 1168, 1251, 1319]},
+          {stop: "K Street Between 18th Street & 19th Street", times: [440, 523, 591, 659, 727, 810, 883, 951, 1034, 1102, 1170, 1253, 1321]},
+          {stop: "UC Merced Downtown Campus Center", times: [442, 525, 593, 661, 729, 812, 885, 953, 1036, 1104, 1172, 1255, 1323]},
+          {stop: "Merced Transpo", times: [450, 533, 601, 669, 737, 820, 893, 961, 1044, 1112, 1180, 1263, 1331]},
+          {stop: "R Street Village Apartments", times: [458, 541, 609, 677, 745, 828, 901, 969, 1052, 1120, 1188, 1271, 1339]},
+
+        ]
+      },
+      {
+        route: "Yosemite Express",
+        weekday: [
+          {stop: "Moraga Subdivision", times: [540, 567, 594, 636, 663, 690, 717, 744, 771, 798, 840, 867, 894, 921, 963, 995, 1022, 1049, 1076, 1118, 1145, 1172, 1199, 1226, 1253, 1280, 1322, 1349]},
+          {stop: "University Transit Center (UTC)", times: [547, 574, 616, 643, 670, 697, 724, 751, 778, 820, 847, 874, 901, 943, 970, 1002, 1029, 1056, 1098, 1125, 1152, 1179, 1206, 1233, 1260, 1302, 1329]},
+          {stop: "Foothill Drive", times: [551, 578, 620, 647, 674, 701, 728, 755, 782, 824, 851, 878, 905, 947, 979, 1006, 1033, 1060, 1102, 1129, 1156, 1183, 1210, 1237, 1264, 1306, 1333]},
+          {stop: "Tri-College / Mercy Hospital (G Street)", times: [556, 583, 625, 652, 679, 706, 733, 760, 787, 829, 856, 883, 910, 952, 984, 1011, 1038, 1065, 1107, 1134, 1161, 1188, 1215, 1242, 1269, 1311, 1338]},
+          {stop: "Raley's (G Street)", times: [559, 586, 628, 655, 682, 709, 736, 763, 790, 832, 859, 886, 913, 955, 987, 1014, 1041, 1068, 1110, 1137, 1164, 1191, 1218, 1245, 1272, 1314, 1341]},
+          {stop: "University Surgery Center", times: [564, 591, 633, 660, 687, 714, 741, 768, 795, 837, 864, 891, 918, 960, 992, 1019, 1046, 1073, 1115, 1142, 1169, 1196, 1223, 1250, 1277, 1319, 1346]},
+          {stop: "Moraga Subdivision", times: [567, 594, 636, 663, 690, 717, 744, 771, 798, 840, 867, 894, 921, 963, 995, 1022, 1049, 1076, 1118, 1145, 1172, 1199, 1226, 1253, 1280, 1322, 1349]},
+        ]
+      },
+      {
+        route: "E-1",
+        weekend: [
+          {stop: "University Transit Center (UTC)", times: [510, 582, 639, 711, 768, 840, 897, 954, 1014, 1086, 1143, 1200, 1272, 1329, 1386]},
+          {stop: "Raley's (G Street)", times: [519, 591, 648, 720, 777, 849, 906, 963, 1023, 1095, 1152, 1209, 1281, 1338, 1395]},
+          {stop: "Amtrak Train Station", times: [526, 598, 655, 727, 784, 856, 913, 970, 1030, 1102, 1159, 1216, 1288, 1345, 1402]},
+          {stop: "K Street Between 18th Street & 19th Street", times: [528, 600, 657, 729, 786, 858, 915, 975, 1032, 1104, 1161, 1218, 1290, 1347, 1404]},
+          {stop: "Walmart (Loughborough Drive)", times: [541, 613, 670, 742, 799, 871, 928, 988, 1045, 1117, 1174, 1231, 1303, 1360, 1417]},
+          {stop: "Meadows Avenue & Olivewood Drive (Foodmaxx)", times: [543, 615, 672, 744, 801, 873, 930, 990, 1047, 1119, 1176, 1233, 1305, 1362, 1419]},
+          {stop: "Merced Mall / Target", times: [547, 619, 676, 748, 805, 877, 934, 994, 1051, 1123, 1180, 1237, 1309, 1366, 1423]},
+          {stop: "Rite Aid/Walgreens (G Street)", times: [554, 626, 683, 755, 812, 884, 941, 1001, 1058, 1130, 1187, 1244, 1316, 1373, 1430]},
+          {stop: "Yosemite Crossings Shopping Center", times: [558, 630, 687, 759, 816, 888, 945, 1005, 1062, 1134, 1191, 1248, 1320, 1377, 1434]},
+          {stop: "University Transit Center (UTC)", times: [582, 639, 711, 768, 840, 897, 954, 1014, 1086, 1143, 1200, 1272, 1329, 1386]},
+        ]
+      },
+      {
+        route: "E-2",
+        weekend: [
+          {stop: "University Transit Center (UTC)", times: [665, 729, 778, 827, 876, 940, 989, 1038, 1105, 1154, 1218, 1267, 1316]},
+          {stop: "Promenade Center", times: [674, 738, 787, 836, 885, 949, 998, 1047, 1114, 1163, 1227, 1276, 1325]},
+          {stop: "R Street Village Apartments", times: [680, 744, 793, 842, 891, 955, 1004, 1056, 1120, 1169, 1233, 1282, 1331]},
+          {stop: "El Redondo Drive (Jenner Drive)", times: [683, 747, 796, 845, 894, 958, 1007, 1059, 1123, 1172, 1236, 1285, 1334]},
+          {stop: "Compass Pointe Apartments (Pacific Drive)", times: [685, 749, 798, 847, 896, 960, 1009, 1061, 1125, 1174, 1238, 1287, 1336]},
+          {stop: "Merced Mall / Target", times: [691, 755, 804, 853, 902, 966, 1015, 1067, 1131, 1180, 1244, 1293, 1342]},
+          {stop: "M Street Village Apartments", times: [693, 757, 806, 855, 904, 968, 1017, 1069, 1133, 1182, 1246, 1295, 1344]},
+          {stop: "Ironstone Drive & M Street", times: [697, 761, 810, 859, 908, 972, 1021, 1073, 1137, 1186, 1250, 1299, 1348]},
+          {stop: "Yosemite & Cordova (Merced Physician Center)", times: [703, 767, 816, 865, 914, 978, 1027, 1079, 1143, 1192, 1256, 1305, 1354]},
+          {stop: "Moraga Subdivision", times: [706, 770, 819, 868, 917, 981, 1030, 1082, 1146, 1195, 1259, 1308, 1357]},
+          {stop: "University Transit Center (UTC)", times: [729, 778, 827, 876, 940, 989, 1038, 1105, 1154, 1218, 1267, 1316]},
+        ]
+      },
+      
+      {
+        route: "Route UC (North Loop)",
+        weekday: [
+          {stop: "University Transit Center (UTC)", times: [407, 447, 487, 527, 567, 607, 647, 687, 727, 767, 807, 847, 887, 927, 967, 1007, 1047, 1087, 1127, 1167]},
+          {stop: "Paulson Ave & Yosemite Ave (Opposite of Promenade)", times: [417, 457, 497, 537, 577, 617, 657, 697, 737, 777, 817, 857, 897, 937, 977, 1017, 1057, 1097, 1137, 1177]},
+          {stop: "Tri-College / Mercy Hospital (G Street)", times: [424, 464, 504, 544, 584, 624, 664, 704, 744, 784, 824, 864, 904, 944, 984, 1024, 1064, 1104, 1144, 1184]},
+          {stop: "Merced College The Bus Terminal", times: [426, 466, 506, 546, 586, 626, 666, 706, 746, 786, 826, 866, 906, 946, 986, 1026, 1066, 1106, 1146, 1186]},
+          {stop: "M Street & Olive Avenue", times: [431, 471, 511, 551, 591, 631, 671, 711, 751, 791, 831, 871, 911, 951, 991, 1031, 1071, 1111, 1151, 1191]},
+          {stop: "Amtrak Train Station", times: [436, 476, 516, 556, 596, 636, 676, 716, 756, 796, 836, 876, 916, 956, 996, 1036, 1076, 1116, 1156, 1196]},
+          {stop: "Merced Transpo", times: [441, 481, 521, 561, 601, 641, 681, 721, 761, 801, 841, 881, 921, 961, 1001, 1041, 1081, 1121, 1161, 1201]},
+          {stop: "University Transit Center (UTC)", times: [447, 487, 527, 567, 607, 647, 687, 727, 767, 807, 847, 887, 927, 967, 1007, 1047, 1087, 1127, 1167]},
+        ]
+      },
+      {
+        route: "Route UC (South Loop)",
+        weekday: [
+          {stop: "Merced Transpo", times: [370, 410, 450, 490, 530, 570, 610, 650, 690, 730, 770, 810, 850, 890, 930, 970, 1010, 1050, 1090, 1130, 1170]},
+          {stop: "The Bus MCAG Office", times: [373, 413, 453, 493, 533, 573, 613, 653, 693, 733, 773, 813, 853, 893, 933, 973, 1013, 1053, 1093, 1133, 1173]},
+          {stop: "Amtrak Train Station", times: [375, 415, 455, 495, 535, 575, 615, 655, 695, 735, 775, 815, 855, 895, 935, 975, 1015, 1055, 1095, 1135, 1175]},
+          {stop: "M Street & Olive Avenue", times: [380, 420, 460, 500, 540, 580, 620, 660, 700, 740, 780, 820, 860, 900, 940, 980, 1020, 1060, 1100, 1140, 1180]},
+          {stop: "Merced College The Bus Terminal", times: [385, 425, 465, 505, 545, 585, 625, 665, 705, 745, 785, 825, 865, 905, 945, 985, 1025, 1065, 1105, 1145, 1185]},
+          {stop: "Merced College UC Parking", times: [386, 426, 466, 506, 546, 586, 626, 666, 706, 746, 786, 826, 866, 906, 946, 986, 1026, 1066, 1106, 1146, 1186]},
+          {stop: "Paulson Ave & Yosemite Ave (Opposite of Promenade)", times: [393, 433, 473, 513, 553, 593, 633, 673, 713, 753, 793, 833, 873, 913, 953, 993, 1033, 1073, 1113, 1153, 1193]},
+          {stop: "University Transit Center (UTC)", times: [402, 442, 482, 522, 562, 602, 642, 682, 722, 762, 802, 842, 882, 922, 962, 1002, 1042, 1082, 1122, 1162, 1202]},
+          {stop: "Merced Transpo", times: [410, 450, 490, 530, 570, 610, 650, 690, 730, 770, 810, 850, 890, 930, 970, 1010, 1050, 1090, 1130, 1170]},
+        ]
+      },
+
+
+      //remove this when summer ends
+      //very temp service
+      {
+        route: "Summer Saturday Service",
+
+        weekend: [
+          {stop: "University Transit Center (UTC)", times: [510, 582, 639, 732, 789, 846, 903, 960, 1050, 1117, 1174, 1211,]},
+          {stop: "Raley's (G Street)", times:[519, 591, 648, 741, 798, 855, 912, 969, 1059, 1126, 1183]},
+          {stop: "Amtrak Train Station", times: [526, 598, 655, 748, 805, 862, 919, 976, 1066, 1133, 1190] },
+          {stop: "K Street Between 18th Street & 19th Street", times: [528, 600, 657, 750, 807, 864, 921, 978, 1068, 1135, 1192]},
+          {stop: "Walmart (Loughborough Drive)", times: [541, 613, 670, 763, 820, 877, 934, 991, 1081, 1148, 1185]},
+          {stop: "Meadows Ave. at Olive Ave.", times: [543, 615, 672, 765, 822, 879, 936, 993, 1083, 1150, 1187]},
+          {stop: "Merced Mall / Target", times: [547, 619, 676, 769, 826, 883, 940, 997, 1087, 1154, 1191]},
+          {stop: "Rite Aid/Walgreens (G Street)", times: [554, 626, 683, 776, 833, 890, 947, 1004, 1094, 1161, 1198]},
+          {stop: "Yosemite Crossings Shopping Center", times: [558, 630, 687, 780, 837, 894, 951, 1008, 1098, 1165, 1202]},
+//          {stop: "University Transit Center (UTC)", times: [567, 639, 696, 789, 846, 903, 960, 1017, 1107, 1174, 1211]},
+        ]
+      },
+
+//Merced City Bus Routes Data Weekdays
+      {
+        route: "M-1 (North Loop)",
+        weekday: [
+          {stop: "Merced Transpo", times: [390, 420, 450, 480, 510, 540, 570, 600, 630, 660, 690, 720, 750, 780, 810, 840, 870, 900, 930, 960, 990, 1020, 1050, 1110, 1170]},
+          {stop: "Employment Devleopment Department", times:[394, 424, 454, 484, 514, 544, 574, 604, 634, 664, 694, 724, 754, 784, 814, 844, 874, 904, 934, 964, 994, 1024, 1054, 1114, 1174]},
+          {stop: "Buena Vista Plaza", times:[401, 431, 461, 491, 521, 551, 581, 611, 641, 671, 701, 731, 761, 791, 821, 851, 881, 911, 941, 971, 1001, 1031, 1061, 1021, 1181]},
+          {stop: "El Redondo Dr. and Aurora Dr.", times:[361, 407, 437, 467, 497, 527, 557, 587, 617, 647, 677, 707, 737, 767, 797, 827, 857, 887, 917, 947, 977, 1007, 1037, 1067, 1127, 1187]},
+          {stop: "Merced College The Bus Terminal", times:[365, 416, 446, 476, 506, 536, 566, 596, 626, 656, 686, 716, 746, 776, 806, 836, 866, 896, 926, 956, 986, 1016, 1046, 1076, 1136, 1196]},
+          {stop:"Merced Mall / Target (Across)", times:[370, 421, 451, 481, 511, 541, 571, 601, 631, 661, 691, 721, 751, 781, 811, 841, 871, 901, 931, 961, 991, 1021, 1051, 1081, 1141, 1201]},
+          {stop: "Walmart (Loughborough Drive)", times:[376, 427, 457, 487, 517, 547, 577, 607, 637, 667, 697, 727, 757, 787, 817, 847, 877, 907, 937, 967, 997, 1027, 1057, 1087, 1147, 1207]},
+          {stop: "Behind Grocery Outlet", times: [384, 435, 465, 495, 525, 555, 585, 615, 645, 675, 705, 735, 765, 795, 825, 855, 885, 915, 945, 975, 1005, 1035, 1065, 1095, 1155]},
+        ], 
+
+        weekend: [
+            {stop: "Merced Transpo", times:[510, 600, 690, 780, 870, 960, 1050]},
+            {stop: "Employment Devleopment Department", times:[514, 604, 694, 784, 874, 964, 1054]},
+            {stop: "Buena Vista Plaza", times: [521, 611, 701, 791, 881, 971, 1061] },
+            {stop: "El Redondo Dr. and Aurora Dr.", times: [527, 617, 707, 797, 887, 977, 1067]},
+            {stop: "Merced College The Bus Terminal", times: [536, 626, 716, 806, 896, 986, 1076]},
+            {stop:"Merced Mall / Target (Across)", times: [541, 631, 721, 811, 901, 991, 1081]},
+            {stop: "Walmart (Loughborough Drive)", times: [547, 637, 727, 817, 907, 997, 1087]},
+            {stop: "Behind Grocery Outlet", times: [555, 645, 735, 825, 915, 1005]},
+          ]
+
+      },
+
+      {
+        route: "M-1 (South Loop)",
+        weekday: [
+          {stop: "Merced Transpo", times: [390, 439, 469, 439, 469, 499, 529, 559, 589, 619, 649, 679, 709, 739, 769, 799, 829, 859, 889, 919, 949, 979, 1009, 1039, 1069, 1099, 1159]},
+          {stop: "Dennis Chavez Pk 11th & W", times:[371, 397, 430, 446, 476, 506, 536, 566, 596, 626, 656, 686, 716, 746, 776, 806, 836, 866, 896, 926, 956, 986, 1016, 1046, 1076, 1106, 1166]},
+          {stop: "Human Service Agency", times: [453, 483, 513, 543, 573, 603, 633, 663, 693, 723, 753, 783, 813, 843, 873, 903, 933, 963, 993, 1023, 1053]},
+          {stop: "T Street at 3rd St", times: [378, 404, 437, 457, 487, 517, 547, 577, 607, 637, 667, 697, 727, 757, 787, 817, 847, 877, 907, 937, 967, 997, 1027, 1057, 1083, 1113, 1173]},
+          {stop: "DMV", times: [382, 408, 441, 461, 491, 521, 551, 581, 611, 641, 671, 701, 731, 761, 791, 821, 851, 881, 911, 941, 971, 1001, 1031, 1061, 1087, 1117, 1177]}, 
+          {stop: "Merced Transpo (Arrive)", times:[386, 412, 445, 465, 495, 525, 555, 585, 615, 645, 675, 705, 735, 765, 795, 825, 855, 885, 915, 945, 975, 1005, 1035, 1065, 1091, 1121, 1181]}
+        ],
+
+        weekend:[
+          {stop: "Merced Transpo", times: [558, 648, 738, 828, 918, 1008]},
+          {stop: "Dennis Chavez Pk 11th & W", times:[488, 565, 655, 745, 835, 925, 1015]},
+          {stop: "T Street at 3rd St", times: [495, 572, 662, 752, 842, 932, 1022]},
+          {stop: "DMV", times: [499, 576, 666, 756, 846, 936, 1026]},
+          {stop: "Merced Transpo (Arrive)", times:[506, 583, 673, 763, 853, 943, 1033]}
+        ]
+      },
+
+      {
+        route: "M-2",
+        weekday:[
+          {stop: "Merced Transpo", times:[405, 435, 465, 495, 525, 555, 585, 615, 645, 675, 705, 735, 765, 795, 825, 855, 885, 915, 945, 975, 1005, 1035, 1065, 1095, 1125]},
+          {stop: "Best Buy", times:[415, 445, 475, 505, 535, 565, 595, 625, 655, 685, 715, 745, 775, 805, 835, 865, 895, 925, 955, 985, 1015, 1045, 1075, 1105, 1135]},
+          {stop: "Merced Mall / Target", times:[421, 451, 481, 511, 541, 571, 601, 631, 661, 691, 721, 751, 781, 811, 841, 871, 901, 931, 961, 991, 1021, 1051, 1081, 1111, 1141]},
+          {stop: "Merced College The Bus Terminal", times:[430, 460, 490, 520, 550, 580, 610, 640, 670, 700, 730, 760, 790, 820, 850, 880, 910, 940, 970, 1000, 1030, 1060, 1090, 1120, 1150, 1185]},
+          {stop: "Across Village Terrace Apartments", times:[369, 437, 467, 497, 527, 557, 587, 617, 647, 677, 707, 737, 767, 797, 827, 857, 887, 917, 947, 977, 1007, 1037, 1067, 1097, 1127, 1157, 1195]},
+          {stop: "Walmart (Loughborough Drive)", times:[376, 444, 474, 504, 534, 564, 594, 624, 654, 684, 714, 744, 774, 804, 834, 864, 894, 924, 954, 984, 1014, 1044, 1074, 1104, 1134, 1164, 1201]},
+          {stop: "Merced Transpo (Arrive)", times: [385, 453, 483, 513, 543, 573, 603, 633, 663, 693, 723, 753, 783, 813, 843, 873, 903, 933, 963, 993, 1023, 1053, 1083, 1113, 1143, 1173, 1210]}
+        ],
+
+        weekend: [
+          {stop: "Merced Transpo", times:[510, 570, 630, 690, 750, 810, 870, 930, 990, 1050]},
+          {stop: "Best Buy", times:[520, 580, 640, 700, 760, 820, 880, 940, 1000, 1060]},
+          {stop: "Merced Mall / Target", times:[526, 586, 646, 706, 766, 826, 886, 946, 1006, 1066]},
+          {stop: "Merced College The Bus Terminal", times:[535, 595, 655, 715, 775, 835, 895, 955, 1015, 1075]},
+          {stop: "Across Village Terrace Apartments", times:[542, 602, 662, 722, 782, 842, 902, 962, 1022]},
+          {stop: "Walmart (Loughborough Drive)", times:[549, 609, 669, 729, 789, 849, 909, 969, 1029]},
+          {stop: "Merced Transpo (Arrive)", times: [558, 618, 678, 738, 798, 858, 918, 978, 1038]}
+        ]
+      },
+
+      {
+        route: "M-3 (North Loop)",
+        weekday:[
+          {stop: "Merced Transpo", times:[390, 420, 450, 480, 510, 540, 570, 600, 630, 660, 690, 720, 750, 780, 810, 840, 870, 900, 930, 960, 990, 1020, 1050, 1110, 1170]},
+          {stop: "County Admin Building", times:[393, 423, 453, 483, 513, 543, 573, 603, 633, 663, 693, 723, 753, 783, 813, 843, 873, 903, 933, 963, 993, 1023, 1053, 1113, 1173]},
+          {stop: "Meadows Ave. at Olive Ave.", times:[402, 432, 462, 492, 522, 552, 582, 612, 642, 672, 702, 732, 762, 792, 822, 852, 882, 912, 942, 972, 1002, 1032, 1062, 1122, 1182]},
+          {stop: "Merced Mall / Target", times:[407, 437, 467, 497, 527, 557, 587, 617, 647, 677, 707, 737, 767, 797, 827, 857, 887, 917, 947, 977, 1007, 1037, 1067, 1127, 1187]},
+          {stop: "Merced College The Bus Terminal", times:[415, 445, 475, 505, 535, 565, 595, 625, 655, 685, 715, 745, 775, 805, 835, 865, 895, 925, 955, 985, 1015, 1045, 1075, 1135, 1195]},
+          {stop: "Mercy Medical Center", times:[422, 452, 482, 512, 542, 572, 602, 632, 662, 692, 722, 752, 782, 812, 842, 872, 902, 932, 962, 992, 1022, 1052, 1082, 1142, 1202]},
+          {stop: "Merced Mall / Target (Across)", times: [374, 434, 464, 494, 524, 554, 584, 614, 644, 674, 704, 734, 764, 794, 824, 854, 884, 914, 944, 974, 1004, 1034, 1064, 1094, 1124, 1154]},
+          {stop: "Across from County Admin", times:[384, 444, 474, 504, 534, 564, 594, 624, 654, 684, 714, 744, 774, 804, 834, 864, 894, 924, 954, 984, 1014, 1044, 1074, 1104, 1134]}
+        ],
+        
+        weekend:[
+          {stop: "Merced Transpo", times:[510, 600, 690, 780, 870, 960, 1050]},
+          {stop: "County Admin Building", times:[513, 603, 693, 783, 873, 963, 1053]},
+          {stop: "Meadows Ave. at Olive Ave.", times:[522, 612, 702, 792, 882, 972, 1062]},
+          {stop: "Merced Mall / Target", times:[527, 617, 707, 797, 887, 977, 1067]},
+          {stop: "Merced College The Bus Terminal", times:[535, 625, 715, 805, 895, 985, 1075]},
+          {stop: "Mercy Medical Center", times:[542, 632, 722, 812, 902, 992]},
+          {stop: "Merced Mall / Target (Across)", times: [554, 644, 734, 824, 914, 1004]},
+          {stop: "Across from County Admin", times:[564, 654, 744, 834, 924, 1014]}
+        ]
+      },
+
+      {
+        route:"M-3 (South Loop)",
+        weekday:[
+          {stop: "Merced Transpo", times:[387, 424, 448, 478, 508, 538, 568, 598, 628, 658, 688, 718, 748, 778, 808, 838, 868, 898, 928, 958, 988, 1018, 1048, 1078, 1108, 1138, 1168]},
+          {stop: "West Ave. & 1st St", times:[372, 393, 432, 454, 484, 514, 544, 574, 604, 634, 664, 694, 724, 754, 784, 814, 844, 874, 904, 934, 964, 994, 1024, 1054, 1084, 1114, 1144, 1174]},
+          {stop: "Golden Valley Health Centers", times:[378, 398, 438, 459, 489, 519, 549, 579, 609, 639, 669, 699, 729, 759, 789, 819, 849, 879, 909, 939, 969, 999, 1029, 1059, 1089, 1119, 1149, 1179]},
+          {stop: "Merced Transpo (Arrive)", times:[383, 403, 443, 464, 494, 524, 554, 584, 614, 644, 674, 704, 734, 764, 794, 824, 854, 884, 914, 944, 974, 1004, 1034, 1064, 1094, 1124, 1154]},
+        ],
+        weekend:[
+          {stop: "Merced Transpo", times:[567, 657, 747, 837, 927, 1017]},
+          {stop: "West Ave. & 1st St", times:[494, 573, 663, 753, 843, 933, 1023]},
+          {stop: "Golden Valley Health Centers", times:[499, 578, 668, 758, 848, 938, 1028]},
+          {stop: "Merced Transpo (Arrive)", times:[504, 583, 673, 763, 853, 943, 1033]},
+        ]
+      },
+
+      {
+        route: "M-4 (North Loop)",
+        weekday:[
+          {stop: "Merced Transpo", times:[390, 420, 450, 480, 510, 540, 570, 600, 630, 660, 690, 720, 750, 780, 810, 840, 870, 900, 930, 960, 990, 1020, 1050, 1110, 1170]},
+          {stop: "East Campus Yosemite High School", times:[393, 423, 453, 483, 513, 543, 573, 603, 633, 663, 693, 723, 753, 783, 813, 843, 873, 903, 933, 963, 993, 1023, 1053, 1113, 1173]},
+          {stop: "G St. at Olive Ave.", times:[398, 428, 458, 488, 518, 548, 578, 608, 638, 668, 698, 728, 758, 788, 818, 848, 878, 908, 938, 968, 998, 1028, 1058, 1118, 1178]},
+          {stop: "Mercy Medical Center", times:[364, 407, 437, 467, 497, 527, 557, 587, 617, 647, 677, 707, 737, 767, 797, 827, 857, 887, 917, 947, 977, 1007, 1037, 1067, 1097, 1127, 1157, 1187]},
+          {stop: "Merced College The Bus Terminal", times:[369, 412, 442, 472, 502, 532, 562, 592, 622, 652, 682, 712, 742, 772, 802, 832, 862, 892, 922, 952, 982, 1012, 1042, 1072, 1102, 1132, 1162, 1192]},
+          {stop: "Park & Ride Bellueve Ave", times:[418, 448, 478, 508, 538, 568, 598, 628, 658, 688, 718, 748, 778, 808, 838, 868, 898, 928, 958, 988, 1018, 1048, 1078, 1108, 1138, 1168, 1198]}
+        ],
+        
+        weekend:[
+          {stop: "Merced Transpo", times:[480, 540, 600, 660, 720, 780, 840, 900, 960, 1020]},
+          {stop: "East Campus Yosemite High School", times:[483, 543, 603, 663, 723, 783, 843, 903, 963, 1023]},
+          {stop: "G St. at Olive Ave.", times:[488, 548, 608, 668, 728, 788, 848, 908, 968, 1028]},
+          {stop: "Mercy Medical Center", times:[497, 557, 617, 677, 737, 797, 857, 917, 977, 1037]},
+          {stop: "Merced College The Bus Terminal", times:[502, 562, 622, 682, 742, 802, 862, 922, 982, 1042]},
+          {stop: "Park & Ride Bellueve Ave", times:[508, 568, 628, 688, 748, 808, 868, 928, 988, 1048]}
+        ]
+      },
+
+      {
+        route: "M-4 (South Loop)",
+        weekday:[
+          {stop: "G St. at Yosemite Ave.", times:[371, 430, 460, 490, 520, 550, 580, 610, 640, 670, 700, 730, 760, 790, 820, 850, 880, 910, 940, 970, 1000, 1030, 1060, 1090, 1120, 1150, 1180, 1210]},
+          {stop: "G St. at Olive Ave.", times:[375, 433, 463, 493, 523, 553, 583, 613, 643, 673, 703, 733, 763, 793, 823, 853, 883, 913, 943, 973, 1003, 1033, 1063, 1093, 1123, 1153, 1183, 1213]},
+          {stop: "Merced Transpo (Arrive)", times: [384, 442, 472, 502, 532, 562, 592, 622, 652, 682, 712, 742, 772, 802, 832, 862, 892, 922, 952, 982, 1012, 1042, 1072, 1102, 1132, 1162, 1192, 1222]}
+        ],
+
+        weekend:[
+          {stop: "G St. at Yosemite Ave.", times:[520, 580, 640, 700, 760, 820, 880, 940, 1000, 1060]},
+          {stop: "G St. at Olive Ave.", times:[523, 583, 643, 703, 763, 823, 883, 943, 1003, 1063]},
+          {stop: "Merced Transpo (Arrive)", times: [532, 592, 652, 712, 772, 832, 892, 952, 1012, 1072]}
+        ]
+      },
+
+      {
+        route: "M-5 (East Loop)",
+        weekday:[
+          {stop: "Merced Transpo", times:[405, 435, 465, 495, 525, 555, 585, 615, 645, 675, 705, 735, 765, 795, 825, 855, 885, 915, 945, 975, 1005, 1035, 1065, 1095, 1125, 1155, 1185]},
+          {stop: "The Bus MCAG Office", times: [408, 438, 468, 498, 528, 558, 588, 618, 648, 678, 708, 738, 768, 798, 828, 858, 888, 918, 948, 978, 1008, 1038, 1068, 1098, 1128, 1158, 1188]},
+          {stop: "Amtrak Train Station", times:[413, 443, 473, 503, 533, 563, 593, 623, 653, 683, 713, 743, 773, 803, 833, 863, 893, 923, 953, 983, 1013, 1043, 1073, 1103, 1133, 1163, 1193]},
+          {stop: "Ranco San Miguel", times:[356, 412, 451, 481, 511, 541, 571, 601, 631, 661, 691, 721, 751, 781, 811, 841, 871, 901, 931, 961, 991, 1021, 1051, 1081, 1111, 1141, 1171, 1201]},
+          {stop: "The Grove Apartments", times:[ 365, 430, 460, 490, 520, 550, 580, 610, 640, 670, 700, 730, 760, 790, 820, 850, 880, 910, 940, 970, 1000, 1030, 1060, 1090, 1120, 1150, 1180, 1210]}
+        ],
+
+        weekend:[
+          {stop: "Merced Transpo", times:[510, 570, 630, 690, 750, 810, 870, 930, 990, 1050]},
+          {stop: "The Bus MCAG Office", times: [513, 573, 633, 693, 753, 813, 873, 933, 993, 1053]},
+          {stop: "Amtrak Train Station", times:[518, 578, 638, 698, 758, 818, 878, 938, 998, 1058]},
+          {stop: "Ranco San Miguel", times:[526, 586, 646, 706, 766, 826, 886, 946, 1006, 1066]},
+          {stop: "The Grove Apartments", times:[484, 535, 595, 655, 715, 775, 835, 895, 955, 1015, 1075]}
+        ]
+      },
+
+      {
+        route: "M-5 (West Loop)",
+        weekday:[
+          {stop: "Motel Drive", times:[369, 434, 464, 494, 524, 554, 584, 614, 644, 674, 704, 734, 764, 794, 824, 854, 884, 914, 944, 974, 1004, 1034, 1064, 1094, 1124, 1154, 1184, 1214]},
+          {stop: "Amtrak Train Station", times:[380, 445, 475, 505, 535, 565, 595, 625, 655, 685, 715, 745, 775, 805, 835, 865, 895, 925, 955, 985, 1015, 1045, 1075, 1105, 1135, 1165]},
+          {stop: "Merced Transpo (Arrive)", times:[385, 450, 480, 510, 540, 570, 600, 630, 660, 690, 720, 750, 780, 810, 840, 870, 900, 930, 960, 990, 1020, 1050, 1080, 1110, 1140, 1170]}
+        ],
+
+        weekend:[
+          {stop: "Motel Drive", times:[488, 541, 601, 661, 721, 781, 841, 901, 961, 1016]},
+          {stop: "Amtrak Train Station", times:[499, 552, 612, 672, 732, 792, 852, 912, 972, 1027]},
+          {stop: "Merced Transpo (Arrive)", times:[504, 557, 617, 677, 737, 797, 857, 917, 977, 1032]}
+        ]
+      },
+
+      {
+        route: "M-6 (East Loop)",
+        weekday:[
+          {stop: "Merced Transpo", times:[465, 510, 555, 600, 645, 690, 735, 780, 825, 870, 915, 960, 1005, 1050, 1095, 1140, 1185]},
+          {stop: "27th & Green St.", times:[421, 474, 519, 564, 609, 654, 699, 744, 789, 834, 879, 924, 969, 1014, 1059, 1104, 1149, 1194]},
+          {stop: "Santa Fe at Reef Apartments", times:[426, 479, 524, 569, 614, 659, 704, 749, 794, 839, 884, 929, 974, 1019, 1064, 1109, 1154, 1199]},
+          {stop: "Alexander Ave & Parsons Ave", times:[435, 488, 533, 578, 623, 668, 713, 758, 803, 848, 893, 938, 983, 1028, 1073, 1118, 1163, 1208]},
+          {stop: "G St. at Olive Ave (Savemart)", times:[438, 491, 536, 581, 626, 671, 716, 761, 806, 851, 896, 941, 986, 1031, 1076, 1121, 1166, 1211]},
+          {stop: "Merced Transpo (Arrive)", times:[445, 498, 543, 588, 633, 678, 723, 768, 813, 858, 903, 948, 993, 1038, 1083, 1128, 1173, 1218]}
+        ],
+
+        weekend:[
+          {stop: "Merced Transpo", times:[510, 555, 600, 645, 690, 735, 780, 825, 870, 915, 960, 1005, 1050]},
+          {stop: "27th & Green St.", times:[519, 564, 609, 654, 699, 744, 789, 834, 879, 924, 969, 1014, 1059]},
+          {stop: "Santa Fe at Reef Apartments", times:[524, 569, 614, 659,704, 749, 794, 839, 884, 929, 974, 1019, 1064]},
+          {stop: "Alexander Ave & Parsons Ave", times:[493, 533, 578, 623, 668, 713, 758, 803, 848, 893, 938, 983, 1028, 1073]},
+          {stop: "G St. at Olive Ave (Savemart)", times:[502, 536, 581, 626, 671, 716, 761, 806, 851, 896, 941, 986, 1031]},
+          {stop: "Merced Transpo (Arrive)", times:[505, 543, 588, 633, 678, 723, 768, 813, 858, 903, 948, 993, 1038]}
+        ]
+      },
+
+      {
+        route: "M-7 (West Loop)",
+        weekday:[
+          {stop: "Merced Transpo", times:[400, 445, 490, 535, 580, 625, 670, 715, 760, 805, 850, 895, 940, 985, 1030, 1075, 1120, 1165]},
+          {stop: "R St. at Childs Ave", times:[411, 456, 501, 546, 591, 636, 681, 726, 771, 816, 861, 906, 951, 996, 1041, 1086, 1131, 1176]},
+          {stop: "G St. at Carmen Way", times:[373, 418, 463, 508, 553, 598, 643, 688, 733, 778, 823, 868, 913, 958, 1003, 1048, 1093, 1138, 1183]},
+          {stop: "Rescue Mission", times:[374, 419, 464, 509, 554, 599, 644, 689, 734, 779, 824, 869, 914, 959, 1004, 1049, 1094, 1139, 1184]},
+          {stop: "D St. Mission", times:[382, 427, 472, 517, 562, 607, 652, 697, 742, 787, 832, 877, 922, 967, 1012, 1057, 1102, 1147, 1192]},
+          {stop: "Merced Transpo (Arrive)", times:[389, 434, 479, 524, 569, 614, 659, 704, 749, 794, 839, 884, 929, 974, 1019, 1064, 1109, 1154, 1199]}
+        ],
+
+        weekend:[
+          {stop: "Merced Transpo", times:[510, 555, 600, 645, 690, 735, 780, 825, 870, 915, 960, 1005, 1050]},
+          {stop: "R St. at Childs Ave", times:[521, 566, 611, 656, 701, 746, 791, 836, 881, 926, 971, 1016, 1061]},
+          {stop: "G St. at Carmen Way", times:[483, 528, 573, 618, 663, 708, 753, 798, 843, 888, 933, 978, 1023, 1068]},
+          {stop: "Rescue Mission", times:[484, 529, 574, 619, 664, 709, 754, 799, 844, 889, 934, 979, 1024, 1069]},
+          {stop: "D St. Mission", times:[492, 537, 582, 627, 672, 717, 762, 807, 852, 897, 942, 987, 1032, 1077]},
+          {stop: "Merced Transpo (Arrive)", times:[499, 544, 589, 634, 679, 724, 769, 814, 859, 904, 949, 994, 1039, 1084]}
+        ],
+      },
+
+    
+
+
+
+
+
+    ];
+
+// ------------------- Priority Queue -------------------
+class MinHeap {
+  constructor() {
+    this.heap = [];
+  }
+
+  push(node) {
+    this.heap.push(node);
+    this._bubbleUp();
+  }
+
+  pop() {
+    if (this.heap.length <= 1) return this.heap.pop();
+    const top = this.heap[0];
+    this.heap[0] = this.heap.pop();
+    this._sinkDown();
+    return top;
+  }
+
+  peek() {
+    return this.heap[0] || null;
+  }
+
+  isEmpty() {
+    return this.heap.length === 0;
+  }
+
+  _bubbleUp() {
+    let i = this.heap.length - 1;
+    while (i > 0) {
+      const parent = Math.floor((i - 1) / 2);
+      if (this.heap[i].arrivalTime >= this.heap[parent].arrivalTime) break;
+      [this.heap[i], this.heap[parent]] = [this.heap[parent], this.heap[i]];
+      i = parent;
+    }
+  }
+
+  _sinkDown() {
+    let i = 0;
+    const len = this.heap.length;
+    while (true) {
+      let left = 2 * i + 1, right = 2 * i + 2, smallest = i;
+      if (left < len && this.heap[left].arrivalTime < this.heap[smallest].arrivalTime) smallest = left;
+      if (right < len && this.heap[right].arrivalTime < this.heap[smallest].arrivalTime) smallest = right;
+      if (smallest === i) break;
+      [this.heap[i], this.heap[smallest]] = [this.heap[smallest], this.heap[i]];
+      i = smallest;
+    }
+  }
+}
+
+function clampInputValue(inputId, min, max) {
+  const input = document.getElementById(inputId);
+  if (!input) {
+    console.warn(`Input element with id "${inputId}" not found.`);
+    return;
+  }
+
+  input.addEventListener("blur", () => {
+    let value = parseInt(input.value);
+    if (isNaN(value)){
+      return;
+    }
+    if (value < min){
+      value = min;
+    }
+    if (value > max){
+      value = max;
+    }
+    input.value = value.toString().padStart(2, "0");
+  });
+}
+
+// ------------------- Time Helpers -------------------
+
+function timeToMinutes(str) {
+  const [h, m] = str.split(":").map(Number);
+  return h * 60 + m;
+}
+
+function minutesToTime(timeStr){
+  let hour = Math.trunc(timeStr / 60)
+  const mins = timeStr % 60
+  let day_period = "AM"
+  if(hour > 11){
+    day_period = "PM"
+  }
+  if(hour > 12){
+    hour = hour - 12
+  }
+  return `${hour}:${mins.toString().padStart(2, "0")} ${day_period}`;
+}
+
+function to12Hour(timeStr) {
+  let [h, m] = timeStr.split(":").map(Number);
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${h}:${m.toString().padStart(2, "0")} ${ampm}`;
+}
+
+function getStartTimeInMinutes() {
+  let hour = parseInt(document.getElementById("hour").value, 10) || 0;
+  let minute = parseInt(document.getElementById("minute").value, 10) || 0;
+  const ampm = document.getElementById("ampm").value;
+  if (ampm === "PM" && hour !== 12) hour += 12;
+  if (ampm === "AM" && hour === 12) hour = 0;
+  return hour * 60 + minute;
+}
+
+
+// ------------------- Graph Construction -------------------
+const fullGraph = { weekday: {}, weekend: {} };
+routesData.forEach(({ route, weekday, weekend }) => {
+  if (weekday){
+    addRouteToGraph(fullGraph.weekday, route, weekday);
+  }
+  if (weekend){
+    addRouteToGraph(fullGraph.weekend, route, weekend);
+  }
+});
+
+function addRouteToGraph(graphPart, route, stops) {
+  for (let i = 0; i < stops.length - 1; i++) {
+    const from = stops[i];
+    const to = stops[i + 1];
+
+    if (!graphPart[from.stop]) graphPart[from.stop] = [];
+    if (!graphPart[to.stop]) graphPart[to.stop] = [];
+
+    const pairCount = Math.min(from.times.length, to.times.length);
+
+    for (let j = 0; j < pairCount; j++) {
+      const departTime = from.times[j];
+      const arriveTime = to.times[j];
+
+      if (!departTime || !arriveTime) continue; // defensive check
+
+      graphPart[from.stop].push({
+        to: to.stop,
+        route,
+        departTime,
+        arriveTime
+      });
+
+      graphPart[to.stop].push({
+        to: from.stop,
+        route,
+        departTime: arriveTime,
+        arriveTime: departTime
+      });
+    }
+  }
+}
+
+// ------------------- Dijkstra-like Route Finder -------------------
+
+function compareStates(a, b) {
+  if (a.arrivalTime !== b.arrivalTime) return a.arrivalTime - b.arrivalTime;
+  return (a.busChanges || 0) - (b.busChanges || 0);
+}
+
+function routeAllowed(route, allowedRoutes) {
+  if (!allowedRoutes || allowedRoutes.size === 0) return true;
+  return Array.from(allowedRoutes).some(selected => route.indexOf(selected) !== -1);
+}
+
+function filterGraphByRoutes(graphPart, allowedRoutes) {
+  if (!allowedRoutes || allowedRoutes.size === 0) return graphPart;
+  const filtered = {};
+  for (const stop in graphPart) {
+    const edges = graphPart[stop].filter(edge => routeAllowed(edge.route, allowedRoutes));
+    if (edges.length) filtered[stop] = edges.slice();
+  }
+  return filtered;
+}
+
+function collectStops(graphPart) {
+  const stops = new Set();
+  for (const stop in graphPart) {
+    stops.add(stop);
+    graphPart[stop].forEach(edge => stops.add(edge.to));
+  }
+  return Array.from(stops).sort();
+}
+
+function findArrivalTimeOptimizedRoute(graphPart, start, end, timeMinutes, mode = "depart") {
+  if (start === end) {
+    const sameState = { stop: start, arrivalTime: timeMinutes, path: [], currentRoute: null, busChanges: 0 };
+    return { quickest: sameState, optimized: sameState };
+  }
+
+  return mode === "arrive"
+    ? findRouteArriveBy(graphPart, start, end, timeMinutes)
+    : findRouteDepartAfter(graphPart, start, end, timeMinutes);
+}
+
+function findRouteArriveBy(graphPart, start, end, endMinutes) {
+  const queue = [{
+    stop: end,
+    time: endMinutes,
+    path: [],
+    currentRoute: null,
+    busChanges: 0,
+    firstDepart: null
+  }];
+
+  const visited = new Map();
+  const candidates = [];
+
+  while (queue.length > 0) {
+    queue.sort((a, b) => {
+      if (a.time !== b.time) return b.time - a.time;
+      if (a.busChanges !== b.busChanges) return a.busChanges - b.busChanges;
+      return (b.firstDepart || 0) - (a.firstDepart || 0);
+    });
+
+    const current = queue.shift();
+    const key = `${current.stop}|${current.currentRoute}|${current.busChanges}`;
+    const bestTime = visited.get(key);
+    if (bestTime !== undefined && bestTime >= current.time) continue;
+    visited.set(key, current.time);
+
+    if (current.stop === start && current.path.length > 0 && current.firstDepart !== null) {
+      candidates.push(current);
+      continue;
+    }
+
+    for (const fromStop in graphPart) {
+      for (const edge of graphPart[fromStop]) {
+        if (edge.to !== current.stop) continue;
+        const depart = edge.departTime;
+        const arrive = edge.arriveTime;
+        if (arrive > current.time || arrive < depart) continue;
+
+        const nextBusChanges = current.currentRoute && current.currentRoute !== edge.route
+          ? current.busChanges + 1
+          : current.busChanges;
+
+        queue.push({
+          stop: fromStop,
+          time: depart,
+          path: [{
+            from: fromStop,
+            to: current.stop,
+            route: edge.route,
+            departTime: depart,
+            arriveTime: arrive
+          }, ...current.path],
+          currentRoute: edge.route,
+          busChanges: nextBusChanges,
+          firstDepart: current.firstDepart === null ? depart : current.firstDepart
+        });
+      }
+    }
+  }
+
+  if (!candidates.length) {
+    return { quickest: null, optimized: null };
+  }
+
+  let quickest = candidates[0];
+  let optimized = candidates[0];
+
+  candidates.forEach(candidate => {
+    if (
+      candidate.firstDepart > quickest.firstDepart ||
+      (candidate.firstDepart === quickest.firstDepart && candidate.busChanges < quickest.busChanges)
+    ) {
+      quickest = candidate;
+    }
+
+    if (
+      candidate.busChanges < optimized.busChanges ||
+      (candidate.busChanges === optimized.busChanges && candidate.firstDepart > optimized.firstDepart)
+    ) {
+      optimized = candidate;
+    }
+  });
+
+  return { quickest, optimized };
+}
+
+function findRouteDepartAfter(graphPart, start, end, startMinutes) {
+  const queue = new MinHeap();
+  queue.push({
+    stop: start,
+    time: startMinutes,
+    arrivalTime: startMinutes,
+    path: [],
+    currentRoute: null,
+    busChanges: 0,
+    firstDepart: null
+  });
+
+  const visited = new Map();
+  const candidates = [];
+
+  while (!queue.isEmpty()) {
+    const current = queue.pop();
+    const key = `${current.stop}|${current.currentRoute}|${current.busChanges}`;
+    const bestTime = visited.get(key);
+    if (bestTime !== undefined && bestTime <= current.time) continue;
+    visited.set(key, current.time);
+
+    if (current.stop === end && current.path.length > 0) {
+      candidates.push(current);
+      if (!queue.isEmpty() && queue.peek().arrivalTime > current.time) {
+        break;
+      }
+      continue;
+    }
+
+    const neighbors = graphPart[current.stop] || [];
+    for (const edge of neighbors) {
+      const depart = edge.departTime;
+      const arrive = edge.arriveTime;
+      if (depart < current.time || arrive < depart) continue;
+      if (current.path.length === 0 && depart < startMinutes) continue;
+
+      const nextBusChanges = current.currentRoute && current.currentRoute !== edge.route
+        ? current.busChanges + 1
+        : current.busChanges;
+
+      queue.push({
+        stop: edge.to,
+        time: arrive,
+        arrivalTime: arrive,
+        path: [
+          ...current.path,
+          {
+            from: current.stop,
+            to: edge.to,
+            route: edge.route,
+            departTime: depart,
+            arriveTime: arrive
+          }
+        ],
+        currentRoute: edge.route,
+        busChanges: nextBusChanges,
+        firstDepart: current.firstDepart === null ? depart : current.firstDepart
+      });
+    }
+  }
+
+  if (!candidates.length) {
+    return { quickest: null, optimized: null };
+  }
+
+  let quickest = candidates[0];
+  let optimized = candidates[0];
+
+  candidates.forEach(candidate => {
+    if (
+      candidate.time < quickest.time ||
+      (candidate.time === quickest.time && candidate.busChanges < quickest.busChanges)
+    ) {
+      quickest = candidate;
+    }
+
+    if (
+      candidate.busChanges < optimized.busChanges ||
+      (candidate.busChanges === optimized.busChanges && candidate.time < optimized.time)
+    ) {
+      optimized = candidate;
+    }
+  });
+
+  return { quickest, optimized };
+}
+
+
+
+
+
+
+
+// ------------------- Plan Trip Logic -------------------
+function planTrip() {
+  const start = document.getElementById("start").value.trim();
+  const end = document.getElementById("end").value.trim();
+  const scheduleType = document.querySelector('input[name="scheduleType"]:checked')?.value || "weekday";
+  const startMinutes = getStartTimeInMinutes();
+  const header = document.getElementById("result-header");
+  const output = document.getElementById("fastest-result");
+  const output1 = document.getElementById("optimized-result");
+  const checklist = document.querySelectorAll('input[name="route_name"]:checked');
+  let list = [];
+
+  checklist.forEach((checkbox) => {
+    /*if(checkbox.value == "Route UC"){
+        list.push("Route UC (North Loop)");
+        list.push("Route UC (South Loop)");
+        return;
+    }*/
+    list.push(checkbox.value);
+  });
+
+  localStorage.setItem('includedRoutes', JSON.stringify(list));
+  
+  graph = { weekday: {}, weekend: {} };
+  routesData.forEach(({ route, weekday, weekend }) => {
+    for(let str of list){
+      if (weekday && route.indexOf(str) !== -1){
+        addRouteToGraph(graph.weekday, route, weekday);
+      }
+      if (weekend && route.indexOf(str) !== -1){
+        addRouteToGraph(graph.weekend, route, weekend);
+      }
+    }
+  });
+  header.innerHTML = "";
+
+  const stopNames = Array.from(new Set([
+    ...Object.keys(graph.weekday),
+    ...Object.keys(graph.weekend)
+  ])).sort();
+
+
+  if(!stopNames.includes(end) || !stopNames.includes(start)){
+    header.textContent = "Please enter valid start and end location names.";
+    output.innerHTML = "";
+    output1.innerHTML = "";
+    return;
+  }
+
+  let startArray = JSON.parse(localStorage.getItem('myStartValue') || '[]');
+  if (!Array.isArray(startArray)) startArray = [];
+  startArray.unshift(start);
+  startArray = new Set(startArray);
+  startArray = [...startArray];
+  if (startArray.length > 5) {
+    startArray.pop();
+  }
+
+  let endArray = JSON.parse(localStorage.getItem('myEndValue') || '[]');
+  if (!Array.isArray(endArray)) endArray = [];
+  endArray.unshift(end);
+  endArray = new Set(endArray);
+  endArray = [...endArray];
+  if (endArray.length > 5) {
+    endArray.pop();
+  }
+
+  localStorage.setItem('myStartValue', JSON.stringify(startArray));
+  localStorage.setItem('myEndValue', JSON.stringify(endArray));
+
+
+  if (!start || !end) {
+    header.textContent = "Please enter both start and end locations.";
+    output.innerHTML = "";
+    output1.innerHTML = "";
+    return;
+  }
+
+  if(start === end){
+    header.textContent = "Please enter different start and end locations.";
+    output.innerHTML = "";
+    output1.innerHTML = "";
+    return;
+  }
+
+  const graphPart = graph[scheduleType];
+  const timeMode = document.querySelector('input[name="timeMode"]:checked')?.value || "depart";
+  const result = findArrivalTimeOptimizedRoute(graphPart, start, end, startMinutes, timeMode);
+
+
+  if (!result || (!result.quickest && !result.optimized)) {
+    header.textContent = "No route found between these locations at this time.";
+    output.innerHTML = "";
+    output1.innerHTML = "";
+    return;
+  }
+
+  const fastestPath = result.quickest?.path || [];
+  const optimizedPath = result.optimized?.path || [];
+
+
+
+  header.innerHTML = `<strong>Trip from "${start}" to "${end}":</strong><br><br>`;
+  var repeated_bus_line = false;
+  var current_line = "";
+  var last_stop = "";
+  var upcoming_stop = "";
+  var lastDepartTime = "";
+  var lastArriveTime = "";
+  var j = 1;
+  if(timeMode){
+    output.innerHTML = '<strong>Fastest Route</strong><br>';
+    output1.innerHTML = '<strong>Optimized Route</strong><br>';
+    fastestPath.forEach((step, i) => {
+      if(step.route === "FastCat 1"){
+        step.route = "FastCat"
+      }
+      if(i == 0){
+        current_line = step.route;
+        last_stop = step.from;
+        upcoming_stop = step.to;
+        lastDepartTime = step.departTime;
+        lastArriveTime = step.arriveTime;
+        if(fastestPath.length == 1){
+            output.innerHTML += `
+          ${j}. Take <strong>${step.route}</strong> from "<em>${step.from}</em>" to "<em>${step.to}</em>"<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;Depart: <strong>${minutesToTime(step.departTime)}</strong>, Arrive: <strong>${minutesToTime(step.arriveTime)}</strong><br><br>`;
+        }
+      }else{
+        if(step.route != current_line){
+          output.innerHTML += `
+          ${j}. Take <strong>${current_line}</strong> from "<em>${last_stop}</em>" to "<em>${upcoming_stop}</em>"<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;Depart: <strong>${minutesToTime(lastDepartTime)}</strong>, Arrive: <strong>${minutesToTime(lastArriveTime)}</strong><br><br>`;
+          j++;
+          current_line = step.route;
+          last_stop = step.from;
+          upcoming_stop = step.to;
+          lastDepartTime = step.departTime;
+          lastArriveTime = step.arriveTime;
+          if(i + 1 == fastestPath.length){
+            output.innerHTML += `
+          ${j}. Take <strong>${step.route}</strong> from "<em>${step.from}</em>" to "<em>${step.to}</em>"<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;Depart: <strong>${minutesToTime(step.departTime)}</strong>, Arrive: <strong>${minutesToTime(step.arriveTime)}</strong><br><br>`;
+          }
+        }
+        else{
+          upcoming_stop = step.to;
+          lastArriveTime = step.arriveTime;
+          if(i + 1 == fastestPath.length){
+            output.innerHTML += `
+            ${j}. Take <strong>${current_line}</strong> from "<em>${last_stop}</em>" to "<em>${upcoming_stop}</em>"<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Depart: <strong>${minutesToTime(lastDepartTime)}</strong>, Arrive: <strong>${minutesToTime(step.arriveTime)}</strong><br><br>`;
+          }
+        }
+      }
+    });
+
+    if (fastestPath.length === 0) {
+      output.innerHTML += '<p>No fastest route found.</p>';
+    }
+
+    j = 1;
+    optimizedPath.forEach((step, i) => {
+      if(step.route === "FastCat 1"){
+        step.route = "FastCat";
+      }
+      if(i == 0){
+        current_line = step.route;
+        last_stop = step.from;
+        upcoming_stop = step.to;
+        lastDepartTime = step.departTime;
+        lastArriveTime = step.arriveTime;
+        if(optimizedPath.length == 1){
+            output1.innerHTML += `
+          ${j}. Take <strong>${step.route}</strong> from "<em>${step.from}</em>" to "<em>${step.to}</em>"<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;Depart: <strong>${minutesToTime(step.departTime)}</strong>, Arrive: <strong>${minutesToTime(step.arriveTime)}</strong><br><br>`;
+        }
+      }else{
+        if(step.route != current_line){
+          output1.innerHTML += `
+          ${j}. Take <strong>${current_line}</strong> from "<em>${last_stop}</em>" to "<em>${upcoming_stop}</em>"<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;Depart: <strong>${minutesToTime(lastDepartTime)}</strong>, Arrive: <strong>${minutesToTime(lastArriveTime)}</strong><br><br>`;
+          j++;
+          current_line = step.route;
+          last_stop = step.from;
+          upcoming_stop = step.to;
+          lastDepartTime = step.departTime;
+          lastArriveTime = step.arriveTime;
+          if(i + 1 == optimizedPath.length){
+            output1.innerHTML += `
+          ${j}. Take <strong>${step.route}</strong> from "<em>${step.from}</em>" to "<em>${step.to}</em>"<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;Depart: <strong>${minutesToTime(step.departTime)}</strong>, Arrive: <strong>${minutesToTime(step.arriveTime)}</strong><br><br>`;
+          }
+        }
+        else{
+          upcoming_stop = step.to;
+          lastArriveTime = step.arriveTime;
+          if(i + 1 == optimizedPath.length){
+            output1.innerHTML += `
+            ${j}. Take <strong>${current_line}</strong> from "<em>${last_stop}</em>" to "<em>${upcoming_stop}</em>"<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Depart: <strong>${minutesToTime(lastDepartTime)}</strong>, Arrive: <strong>${minutesToTime(step.arriveTime)}</strong><br><br>`;
+          }
+        }
+      }
+    });
+
+    if (optimizedPath.length === 0) {
+      output1.innerHTML += '<p>No optimized route found.</p>';
+    }
+  }
+}
+
+
+
+// ------------------- Autocomplete Setup -------------------
+
+
+function setupAutocomplete(inputId, dropdownId) {
+  const input = document.getElementById(inputId);
+  const dropdown = document.getElementById(dropdownId);
+
+  const stopNames = Array.from(new Set([
+  ...Object.keys(fullGraph.weekday),
+  ...Object.keys(fullGraph.weekend)
+])).sort();
+
+  input.addEventListener("click", () => {
+  if(input.value){
+    input.dispatchEvent(new Event("input"));
+  }
+  dropdown.innerHTML = "";
+  const focusSuggestions = stopNames;
+  localStorage.setItem('my' + inputId.charAt(0).toUpperCase() + inputId.slice(1) + 'Value', JSON.stringify(focusSuggestions));
+  focusSuggestions.forEach(itemText => {
+    const item = document.createElement("div");
+    item.className = "autocomplete-item";
+    item.textContent = itemText;
+    item.onclick = () => {
+      input.value = itemText;
+      dropdown.innerHTML = "";
+      dropdown.style.display = "none";
+    };
+    dropdown.appendChild(item);
+  });
+  dropdown.style.display = "block";
+});
+
+
+  input.addEventListener("input", () => {
+    
+    const value = input.value.trim().toLowerCase();
+    dropdown.innerHTML = "";
+
+    if (!value) {
+      const matches = stopNames;
+      matches.forEach(match => {
+        const item = document.createElement("div");
+        item.className = "autocomplete-item";
+        item.textContent = match;
+        item.onclick = () => {
+          input.value = match;
+          dropdown.innerHTML = "";
+          dropdown.style.display = "none";
+        };
+        dropdown.appendChild(item);
+      });
+      dropdown.style.display = "block";
+      return;
+    }
+
+    const matches = stopNames.filter(stop =>
+      stop.toLowerCase().includes(value)
+    );
+
+    if (matches.length === 0) {
+      dropdown.style.display = "none";
+      return;
+    }
+
+    matches.forEach(match => {
+      const item = document.createElement("div");
+      item.className = "autocomplete-item";
+      item.textContent = match;
+      item.onclick = () => {
+        input.value = match;
+        dropdown.innerHTML = "";
+        dropdown.style.display = "none";
+      };
+      dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = "block";
+  });
+
+  // Close dropdown if clicking outside
+  document.addEventListener("click", e => {
+    if (!dropdown.contains(e.target) && e.target !== input) {
+      dropdown.innerHTML = "";
+      dropdown.style.display = "none";
+    }
+  });
+}
+
+function selectAll(){
+const checkboxes = document.querySelectorAll('input[name="route_name"]');
+  checkboxes.forEach(cb => cb.checked = true);
+}
+
+function deselectAll(){
+const checkboxes = document.querySelectorAll('input[name="route_name"]');
+  checkboxes.forEach(cb => cb.checked = false);
+}
+
+function summerRoutes(){
+  const checkboxes = document.querySelectorAll('input[name="route_name"]');
+    checkboxes.forEach(cb => {
+    const route_list = ["Bobcat Express", "C-1", "C-2", "FastCat 1", "G Line", "Route UC", "M-1", "M-2", "M-3", "M-4", "M-5", "M-6", "M-7", "Summer Saturday Service"];
+    if(route_list.includes(cb.value)){
+      cb.checked = true;
+    }else{
+      cb.checked = false;
+    }
+  });
+}
+
+window.onload = () => {
+  const startInput = document.getElementById("start");
+  const endInput = document.getElementById("end");
+  const hourInput = document.getElementById("hour");
+  const minuteInput = document.getElementById("minute");
+  let includedRoutesList = JSON.parse(localStorage.getItem('includedRoutes'));
+  const checkboxes = document.querySelectorAll('input[name="route_name"]');
+  checkboxes.forEach(cb => {
+    if(!includedRoutesList || includedRoutesList.includes(cb.value)){
+      cb.checked = true;
+    }
+  });
+  setupAutocomplete("start", "start-autocomplete");
+  setupAutocomplete("end", "end-autocomplete");
+  clampInputValue("hour", 1, 12);   // Clamp to 1–12
+  clampInputValue("minute", 0, 59); // Clamp to 0–59
+
+/*  //saved input autofill
+  const savedStartValue = localStorage.getItem('myStartValue');
+  const savedEndValue = localStorage.getItem('myEndValue');
+  if (savedStartValue) {
+    startInput.value = savedStartValue;
+  }
+  if (savedEndValue) {
+    endInput.value = savedEndValue;
+  }*/
+
+  startInput.addEventListener("focus", function () {
+		this.select();
+	});
+
+  endInput.addEventListener("focus", function () {
+		this.select();
+	});
+
+  hourInput.addEventListener("focus", function () {
+		this.select();
+	});
+
+  minuteInput.addEventListener("focus", function () {
+		this.select();
+	});
+};
+
+//switch button logic
+    function switchLocations(){
+        const startInput = document.getElementById("start");
+        const endInput = document.getElementById("end");
+
+        const temp = startInput.value;
+        startInput.value = endInput.value;
+        endInput.value = temp;
+    }
+</script>
+</body>
+</html>
