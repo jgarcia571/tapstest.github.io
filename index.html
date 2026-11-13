@@ -2,11 +2,22 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Untitled Document</title>
 </head>
 
 <body>
-<style type="text/css">.button {
+<link href="https://js.arcgis.com/4.31/esri/themes/light/main.css" rel="stylesheet" /><script src="https://js.arcgis.com/4.31/"></script>
+<style type="text/css">html,
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+  }
+	.button {
             background-color: #CDAA00;
             color: #005B99;
             padding: 10px 10px;
@@ -41,19 +52,6 @@
             width: 100%; /* Ensures iframe fills the container */
             height: 480px; /* Fixed height for consistency */
         }
-</style>
-<link href="https://js.arcgis.com/4.31/esri/themes/light/main.css" rel="stylesheet" /><script src="https://js.arcgis.com/4.31/"></script>
-<style type="text/css">html,
-  body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    font-size: 18px;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-  }
 
   /* possible solution, add a parent
                      visibility so that when you zoom 
